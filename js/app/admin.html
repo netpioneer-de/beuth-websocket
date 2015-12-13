@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Socket Example - Admin Backend</title>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+</head>
+
+<script>
+    (function() {
+        var socket = io();
+
+        var markers = [];
+
+        socket.on('delete object', function (object) {
+            console.log('delete object: ' + object.toString());
+        });
+
+        socket.on('send object', function (object) {
+            console.log('send object: ' + object.toString());
+            markers.add(object);
+            $('#objects_table tr:last').after('<tr><td>' +  + '</td><td>' + object.lng + '</td><td>' + object.lat + '</td></tr>');
+        });
+    }) ();
+</script>
+
+<body>
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Netpioneer - Websockets</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h2>Verfügbare Objekte</h2>
+        <table class="table table-hover" id="objects_table">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Lang</th>
+                    <th>Lat</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</body>
+</html>

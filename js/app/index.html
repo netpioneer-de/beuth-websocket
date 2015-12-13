@@ -22,7 +22,7 @@
 	var socket = io();	
 
 	var map;
-    	var beuthCoords = {lat: 52.545517, lng: 13.351622};
+	var beuthCoords = {lat: 52.545517, lng: 13.351622};
 	var markers = [];
 
 	function initMap() {
@@ -44,25 +44,25 @@
 	    }		
 
 	    var createNewMarker = function(map, coords) {
-		var newMarker = new google.maps.Marker({
-		    position: coords,
-		    map: map,
-		});
+			var newMarker = new google.maps.Marker({
+				position: coords,
+				map: map,
+			});
 
-		markers.push(newMarker);
-		setDeleteListener(newMarker);
-		
-		return newMarker;
+			markers.push(newMarker);
+			setDeleteListener(newMarker);
+
+			return newMarker;
 	    }
 
 	    var sendObjectToServer = function(object) {
-		console.log('... sending coords:' + object)
-		socket.emit('send object', object);
+			console.log('... sending coords:' + object)
+			socket.emit('send object', object);
 	    }	    
 
 	    map.addListener('click', function(event) {
-		// var newMarker = createNewMarker(map, event.latLng);
-		sendObjectToServer(event.latLng);
+			// var newMarker = createNewMarker(map, event.latLng);
+			sendObjectToServer(event.latLng);
 	    });
 
 	    socket.on('delete object', function(object) {
@@ -79,7 +79,7 @@
 
 	    socket.on('send object', function(object){
     		console.log('coords incoming: ' + object);
-		createNewMarker(map, object)
+			createNewMarker(map, object)
   	    });
 
 	    // create initial Beuth Marker
