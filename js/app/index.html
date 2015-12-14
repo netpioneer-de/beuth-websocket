@@ -1,93 +1,108 @@
 <!doctype html>
 <html>
-  <head>
+<head>
     <title>Socket Example</title>
     <meta name="viewport" content="initial-scale=1.0">
     <meta charset="utf-8">
     <style>
-	html, body {
-	    height: 100%;
-	    margin: 0;
-	    padding: 0;
-	}
-	#map {
-	    height: 100%;
-	}
-     </style>
-  </head>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?callback=initMap" async defer></script>
-  <script>
-	var socket = io();	
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
 
-	var map;
-	var beuthCoords = {lat: 52.545517, lng: 13.351622};
-	var markers = [];
+        #map {
+            height: 100%;
+        }
+    </style>
+</head>
+<script src="/socket.io/socket.io.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?callback=initMap" async defer></script>
+<script>
+    var map;
+    var socket;
+    var beuthCoords = {lat: 52.545517, lng: 13.351622};
+    var markers = [];
 
-	function initMap() {
-	        
-	    map = new google.maps.Map(document.getElementById('map'), {
-	    	center: beuthCoords, // der Beuth Hochschule
-	        zoom: 15
-	    });
 
-	    var deleteObjectOnServer = function(object) {
-		console.log('... sending delete:' + object)
-		socket.emit('delete object', object);
-	    }
+    var createNewMarker = function (map, coords) {
+        var newMarker = new google.maps.Marker({
+            position: coords,
+            map: map
+        });
 
-	    var setDeleteListener = function(marker){		
-		marker.addListener('click', function(event) {
-		    deleteObjectOnServer(event.latLng);
-		});
-	    }		
+        markers.push(newMarker);
+        setDeleteListener(newMarker);
 
-	    var createNewMarker = function(map, coords) {
-			var newMarker = new google.maps.Marker({
-				position: coords,
-				map: map,
-			});
+        return newMarker;
+    };
 
-			markers.push(newMarker);
-			setDeleteListener(newMarker);
+    var setDeleteListener = function (marker) {
+        marker.addListener('click', function (event) {
+            deleteObjectOnServer(event.latLng);
+        });
+    };
 
-			return newMarker;
-	    }
+    var sendMarkerToServer = function (marker) {
+        console.log('... sending coords:' + marker);
+        socket.emit('add marker', marker);
+    };
 
-	    var sendObjectToServer = function(object) {
-			console.log('... sending coords:' + object)
-			socket.emit('send object', object);
-	    }	    
+    var deleteObjectOnServer = function (marker) {
+        console.log('... sending delete:' + marker);
+        socket.emit('delete marker', marker);
+    };
 
-	    map.addListener('click', function(event) {
-			// var newMarker = createNewMarker(map, event.latLng);
-			sendObjectToServer(event.latLng);
-	    });
+    var removeMarker = function (marker) {
+        for (var i = 0; i < markers.length; i++) {
+            if (marker.lat === markers[i].position.lat()
+                    && marker.lng === markers[i].position.lng()) {
 
-	    socket.on('delete object', function(object) {
-		for(var i = 0; i < markers.length; i++) {
-		    if(object.lat === markers[i].position.lat() 
-			&& object.lng === markers[i].position.lng()){
+                markers[i].setMap(null);
+                markers.splice(i, 1);
 
-			markers[i].setMap(null);
-			markers.splice(i, 1);
+            }
+        }
+    };
 
-		    }
-		}
-	    });
+    var initSocket = function () {
+        socket = io();
 
-	    socket.on('send object', function(object){
-    		console.log('coords incoming: ' + object);
-			createNewMarker(map, object)
-  	    });
+        socket.on('init', function () {
+            console.log('initializing');
+            markers.forEach(function (marker) {
+                removeMarker(marker);
+            })
+        });
 
-	    // create initial Beuth Marker
-	    var beuthMarker = createNewMarker(map, beuthCoords);
-	}
+        socket.on('delete marker', function (marker) {
+            removeMarker(marker);
+        });
 
-  </script>
-  <body>
-    <div id="map"></div>
-  </body>
+        socket.on('add marker', function (marker) {
+            console.log('coords incoming: ' + marker);
+            createNewMarker(map, marker)
+        });
+    };
+
+    function initMap() {
+
+        map = new google.maps.Map(document.getElementById('map'), {
+            center: beuthCoords, // der Beuth Hochschule
+            zoom: 15
+        });
+
+        map.addListener('click', function (event) {
+            // var newMarker = createNewMarker(map, event.latLng);
+            sendMarkerToServer(event.latLng);
+        });
+
+        initSocket();
+    }
+
+</script>
+<body>
+<div id="map"></div>
+</body>
 </html>

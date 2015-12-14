@@ -24,14 +24,18 @@
 
         var markers = [];
 
-        socket.on('delete object', function (object) {
-            console.log('delete object: ' + object.toString());
+        socket.on('init', function () {
+
         });
 
-        socket.on('send object', function (object) {
-            console.log('send object: ' + object.toString());
-            markers.add(object);
-            $('#objects_table tr:last').after('<tr><td>' +  + '</td><td>' + object.lng + '</td><td>' + object.lat + '</td></tr>');
+        socket.on('delete marker', function (marker) {
+            console.log('delete marker: ' + marker);
+        });
+
+        socket.on('add marker', function (marker) {
+            console.log('add marker: ' + marker);
+            markers.push(marker);
+            $('#objects_table tr:last').after('<tr><td>' + markers.length + '</td><td>' + marker.lng + '</td><td>' + marker.lat + '</td></tr>');
         });
     }) ();
 </script>
