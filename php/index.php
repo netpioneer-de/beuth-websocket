@@ -25,13 +25,15 @@
     var markers = [
         <?php
         // add markers
-        $markers = fopen("markers.txt", "r");
-        if ($markers) {
-            while (($marker = fgets($markers)) !== false) {
-                echo $marker . ',';
+        try {
+            $markers = fopen("markers.txt", "r");
+            if ($markers) {
+                while (($marker = fgets($markers)) !== false) {
+                    echo $marker . ',';
+                }
+                fclose($markers);
             }
-            fclose($markers);
-        }
+        } catch (Exception $e) {}
         ?>
     ];
 

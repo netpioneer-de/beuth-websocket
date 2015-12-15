@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Socket Example - Admin Backend</title>
+    <title>Step 04</title>
 
     <script src="/socket.io/socket.io.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
@@ -19,44 +19,33 @@
 </head>
 
 <script>
-    (function() {
-        var socket = io();
+    var socket = io();
+    socket.on('message_send', function (message) {
+        $('#messages').append('<p>' + message + '</p>');
+    });
 
-        var markers = [];
-
-        socket.on('message_delete_marker', function (marker) {
-            console.log('delete marker: ' + marker);
-        });
-
-        socket.on('message_add_marker', function (marker) {
-            console.log('add marker: ' + marker);
-            markers.push(marker);
-            $('#objects_table tr:last').after('<tr><td>' + markers.length + '</td><td>' + marker.lng + '</td><td>' + marker.lat + '</td></tr>');
-        });
-    }) ();
+    var buttonClick = function() {
+        socket.emit('message_send', $('#message-text').val());
+    };
 </script>
 
 <body>
     <nav class="navbar navbar-default">
         <div class="container-fluid">
             <div class="navbar-header">
-                <a class="navbar-brand" href="#">Netpioneer - Websockets</a>
+                <a class="navbar-brand" href="#">Netpioneer - Chat</a>
             </div>
         </div>
     </nav>
 
     <div class="container">
-        <h2>Verfügbare Objekte</h2>
-        <table class="table table-hover" id="objects_table">
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Lang</th>
-                    <th>Lat</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <p>
+            <input type="text" id="message-text">
+            <input type="button" value="Senden" onclick="buttonClick()">
+        </p>
+        <div class="jumbotron">
+            <div id="messages" class="container"></div>
+        </div>
     </div>
 </body>
 </html>

@@ -16,13 +16,13 @@ app.get('/admin', function (req, res) {
 });
 
 io.on('connection', function (socket) {
-    socket.on('add marker', function (marker) {
+    socket.on('message_add_marker', function (marker) {
         console.log('New marker added: ' + marker);
         markers.push(marker);
-        io.emit('add marker', marker);
+        io.emit('message_add_marker', marker);
     });
 
-    socket.on('delete marker', function (marker) {
+    socket.on('message_delete_marker', function (marker) {
         console.log('marker to delete: ' + marker);
         for (var i = 0; i < markers.length; i++) {
             if (marker.lat === markers[i].lat
@@ -31,13 +31,13 @@ io.on('connection', function (socket) {
                 markers.splice(i, 1);
             }
         }
-        io.emit('delete marker', marker);
+        io.emit('message_delete_marker', marker);
     });
 
     socket.emit('init');
 
     markers.forEach(function (marker) {
-        socket.emit('add marker', marker);
+        socket.emit('message_add_marker', marker);
     });
 });
 

@@ -26,32 +26,32 @@
     var markers = [];
 
 
-    var createNewMarker = function (map, coords) {
-        var newMarker = new google.maps.Marker({
+    var createMarker = function (map, coords) {
+        var marker = new google.maps.Marker({
             position: coords,
             map: map
         });
 
-        markers.push(newMarker);
-        setDeleteListener(newMarker);
+        markers.push(marker);
+        setDeleteListener(marker);
 
-        return newMarker;
+        return marker;
     };
 
     var setDeleteListener = function (marker) {
         marker.addListener('click', function (event) {
-            deleteObjectOnServer(event.latLng);
+            sendDeleteMarkerMessage(event.latLng);
         });
     };
 
-    var sendMarkerToServer = function (marker) {
+    var sendAddMarkerMessage = function (marker) {
         console.log('... sending coords:' + marker);
-        socket.emit('add marker', marker);
+        socket.emit('message_add_marker', marker);
     };
 
-    var deleteObjectOnServer = function (marker) {
+    var sendDeleteMarkerMessage = function (marker) {
         console.log('... sending delete:' + marker);
-        socket.emit('delete marker', marker);
+        socket.emit('message_delete_marker', marker);
     };
 
     var removeMarker = function (marker) {
@@ -61,7 +61,6 @@
 
                 markers[i].setMap(null);
                 markers.splice(i, 1);
-
             }
         }
     };
@@ -69,20 +68,13 @@
     var initSocket = function () {
         socket = io();
 
-        socket.on('init', function () {
-            console.log('initializing');
-            markers.forEach(function (marker) {
-                removeMarker(marker);
-            })
-        });
-
-        socket.on('delete marker', function (marker) {
+        socket.on('message_delete_marker', function (marker) {
             removeMarker(marker);
         });
 
-        socket.on('add marker', function (marker) {
+        socket.on('message_add_marker', function (marker) {
             console.log('coords incoming: ' + marker);
-            createNewMarker(map, marker)
+            createMarker(map, marker)
         });
     };
 
@@ -94,8 +86,7 @@
         });
 
         map.addListener('click', function (event) {
-            // var newMarker = createNewMarker(map, event.latLng);
-            sendMarkerToServer(event.latLng);
+            sendAddMarkerMessage(event.latLng);
         });
 
         initSocket();
